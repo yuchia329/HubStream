@@ -458,6 +458,8 @@ export function useRoom(
             
             entry.consumers.forEach((consumer) => {
                 if (consumer.kind === 'video') {
+                    // Temporarily disabled to isolate black screen issue
+                    /*
                     if (!isWatched && !consumer.paused) {
                         // Pause downloading this video if they are off-screen
                         consumer.pause();
@@ -467,6 +469,7 @@ export function useRoom(
                         consumer.resume();
                         wsRequest('resumeConsumer', { consumerId: consumer.id }).catch(e => console.warn('Failed to resume consumer', e));
                     }
+                    */
                 }
             });
         });

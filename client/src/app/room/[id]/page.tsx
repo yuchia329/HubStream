@@ -112,21 +112,6 @@ export default function RoomPage({ params }: PageProps) {
     router.push('/');
   }, [leave, router]);
 
-  if (error) {
-    return (
-      <div className="error-screen">
-        <div className="error-card">
-          <span className="error-icon">⚠️</span>
-          <h2>Connection Error</h2>
-          <p>{error}</p>
-          <button className="btn btn-primary" onClick={() => router.push('/')}>
-            ← Back to Lobby
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   const totalParticipants = participants.length + 1; // +1 for self
 
   // Determine who the main speaker is
@@ -294,6 +279,21 @@ export default function RoomPage({ params }: PageProps) {
   useEffect(() => {
     setWatchedVideoPeers(visiblePeerStr ? visiblePeerStr.split(',') : []);
   }, [visiblePeerStr, setWatchedVideoPeers]);
+
+  if (error) {
+    return (
+      <div className="error-screen">
+        <div className="error-card">
+          <span className="error-icon">⚠️</span>
+          <h2>Connection Error</h2>
+          <p>{error}</p>
+          <button className="btn btn-primary" onClick={() => router.push('/')}>
+            ← Back to Lobby
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`room-page ${isChatOpen ? 'room-page--with-chat' : ''} ${isPortrait ? 'env-portrait' : 'env-landscape'}`}>

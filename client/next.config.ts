@@ -7,15 +7,15 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/ws',
-        destination: 'http://127.0.0.1:4000/ws',
+        destination: 'http://server:4000/ws',
       },
       {
         source: '/ws-p2p',
-        destination: 'http://127.0.0.1:4000/ws-p2p',
+        destination: 'http://server:4000/ws-p2p',
       },
       {
         source: '/api/:path*',
-        destination: 'http://127.0.0.1:4000/api/:path*',
+        destination: 'http://server:4000/api/:path*',
       },
     ];
   },

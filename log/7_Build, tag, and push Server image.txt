@@ -1,0 +1,132 @@
+﻿2026-03-24T00:58:08.1298607Z ##[group]Run docker buildx build --platform linux/arm64 \
+2026-03-24T00:58:08.1299060Z [36;1mdocker buildx build --platform linux/arm64 \[0m
+2026-03-24T00:58:08.1299480Z [36;1m  --push -t $DOCKERHUB_USERNAME/facetime-server:$IMAGE_TAG ./server[0m
+2026-03-24T00:58:08.1348584Z shell: /usr/bin/bash -e {0}
+2026-03-24T00:58:08.1348828Z env:
+2026-03-24T00:58:08.1349077Z   DOCKERHUB_USERNAME: ***
+2026-03-24T00:58:08.1349362Z   IMAGE_TAG: 270a6fdba2b95bbbde7c75cb3325fb924e4801df
+2026-03-24T00:58:08.1349658Z ##[endgroup]
+2026-03-24T00:58:08.3870787Z #0 building with "builder-d1b3e72f-85bd-48dd-8686-d350ac68b761" instance using docker-container driver
+2026-03-24T00:58:08.3872919Z 
+2026-03-24T00:58:08.3873177Z #1 [internal] load build definition from Dockerfile
+2026-03-24T00:58:08.3873750Z #1 transferring dockerfile: 741B done
+2026-03-24T00:58:08.3874187Z #1 DONE 0.0s
+2026-03-24T00:58:08.3874387Z 
+2026-03-24T00:58:08.3874655Z #2 [internal] load metadata for docker.io/library/node:22-alpine
+2026-03-24T00:58:08.3875332Z #2 DONE 0.1s
+2026-03-24T00:58:08.3875526Z 
+2026-03-24T00:58:08.3875687Z #3 [internal] load .dockerignore
+2026-03-24T00:58:08.3876360Z #3 transferring context: 2B done
+2026-03-24T00:58:08.3876803Z #3 DONE 0.0s
+2026-03-24T00:58:08.5569965Z 
+2026-03-24T00:58:08.5570708Z #4 [builder 1/8] FROM docker.io/library/node:22-alpine@sha256:8094c002d08262dba12645a3b4a15cd6cd627d30bc782f53229a2ec13ee22a00
+2026-03-24T00:58:08.5572200Z #4 resolve docker.io/library/node:22-alpine@sha256:8094c002d08262dba12645a3b4a15cd6cd627d30bc782f53229a2ec13ee22a00 done
+2026-03-24T00:58:08.5573124Z #4 CACHED
+2026-03-24T00:58:08.5573311Z 
+2026-03-24T00:58:08.5573470Z #5 [internal] load build context
+2026-03-24T00:58:08.5573914Z #5 transferring context: 107.84kB done
+2026-03-24T00:58:08.5574342Z #5 DONE 0.0s
+2026-03-24T00:58:08.5574680Z 
+2026-03-24T00:58:08.5574992Z #6 [builder 2/8] RUN apk add --no-cache python3 make g++ linux-headers
+2026-03-24T00:58:10.3990068Z #6 2.007 ( 1/30) Installing libstdc++-dev (15.2.0-r2)
+2026-03-24T00:58:10.8689553Z #6 2.477 ( 2/30) Installing jansson (2.14.1-r0)
+2026-03-24T00:58:11.0498120Z #6 2.484 ( 3/30) Installing zstd-libs (1.5.7-r2)
+2026-03-24T00:58:11.0498739Z #6 2.507 ( 4/30) Installing binutils (2.45.1-r0)
+2026-03-24T00:58:11.2047763Z #6 2.813 ( 5/30) Installing libgomp (15.2.0-r2)
+2026-03-24T00:58:11.3177427Z #6 2.826 ( 6/30) Installing libatomic (15.2.0-r2)
+2026-03-24T00:58:11.3179370Z #6 2.844 ( 7/30) Installing gmp (6.3.0-r4)
+2026-03-24T00:58:11.3179894Z #6 2.865 ( 8/30) Installing isl26 (0.26-r1)
+2026-03-24T00:58:11.3180383Z #6 2.926 ( 9/30) Installing mpfr4 (4.2.2-r0)
+2026-03-24T00:58:11.5075662Z #6 2.950 (10/30) Installing mpc1 (1.3.1-r1)
+2026-03-24T00:58:11.5076505Z #6 2.965 (11/30) Installing gcc (15.2.0-r2)
+2026-03-24T00:58:14.5441089Z #6 6.152 (12/30) Installing musl-dev (1.2.5-r21)
+2026-03-24T00:58:14.7577938Z #6 6.366 (13/30) Installing g++ (15.2.0-r2)
+2026-03-24T00:58:15.8029773Z #6 7.411 (14/30) Installing linux-headers (6.16.12-r0)
+2026-03-24T00:58:16.0672120Z #6 7.675 (15/30) Installing make (4.4.1-r3)
+2026-03-24T00:58:16.1714569Z #6 7.688 (16/30) Installing libbz2 (1.0.8-r6)
+2026-03-24T00:58:16.1715580Z #6 7.696 (17/30) Installing libexpat (2.7.5-r0)
+2026-03-24T00:58:16.1717174Z #6 7.705 (18/30) Installing libffi (3.5.2-r0)
+2026-03-24T00:58:16.1717812Z #6 7.715 (19/30) Installing gdbm (1.26-r0)
+2026-03-24T00:58:16.1718304Z #6 7.723 (20/30) Installing xz-libs (5.8.2-r0)
+2026-03-24T00:58:16.1718830Z #6 7.738 (21/30) Installing mpdecimal (4.0.1-r0)
+2026-03-24T00:58:16.1719452Z #6 7.749 (22/30) Installing ncurses-terminfo-base (6.5_p20251123-r0)
+2026-03-24T00:58:16.1720111Z #6 7.760 (23/30) Installing libncursesw (6.5_p20251123-r0)
+2026-03-24T00:58:16.1720737Z #6 7.774 (24/30) Installing libpanelw (6.5_p20251123-r0)
+2026-03-24T00:58:16.1721275Z #6 7.780 (25/30) Installing readline (8.3.1-r0)
+2026-03-24T00:58:16.3873159Z #6 7.792 (26/30) Installing sqlite-libs (3.51.2-r0)
+2026-03-24T00:58:16.3873777Z #6 7.845 (27/30) Installing python3 (3.12.12-r0)
+2026-03-24T00:58:16.8388517Z #6 8.447 (28/30) Installing python3-pycache-pyc0 (3.12.12-r0)
+2026-03-24T00:58:17.1864070Z #6 8.795 (29/30) Installing pyc (3.12.12-r0)
+2026-03-24T00:58:17.1864707Z #6 8.795 (30/30) Installing python3-pyc (3.12.12-r0)
+2026-03-24T00:58:17.4074348Z #6 8.797 Executing busybox-1.37.0-r30.trigger
+2026-03-24T00:58:17.4074766Z #6 8.865 OK: 281.4 MiB in 48 packages
+2026-03-24T00:58:17.7989723Z #6 DONE 9.4s
+2026-03-24T00:58:17.9974733Z 
+2026-03-24T00:58:17.9975234Z #7 [builder 3/8] WORKDIR /app
+2026-03-24T00:58:17.9975694Z #7 DONE 0.0s
+2026-03-24T00:58:17.9975882Z 
+2026-03-24T00:58:17.9976055Z #8 [builder 4/8] COPY package*.json ./
+2026-03-24T00:58:17.9976672Z #8 DONE 0.0s
+2026-03-24T00:58:17.9976868Z 
+2026-03-24T00:58:17.9977010Z #9 [builder 5/8] RUN npm ci
+2026-03-24T00:58:27.8974141Z #9 ...
+2026-03-24T00:58:27.8974626Z 
+2026-03-24T00:58:27.8974878Z #10 [runner 5/6] RUN npm ci --omit=dev
+2026-03-24T00:58:34.0831353Z #10 16.24 npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+2026-03-24T00:58:35.8394638Z #10 ...
+2026-03-24T00:58:35.8394935Z 
+2026-03-24T00:58:35.8395097Z #9 [builder 5/8] RUN npm ci
+2026-03-24T00:58:35.8396065Z #9 17.99 npm warn deprecated rimraf@2.7.1: Rimraf versions prior to v4 are no longer supported
+2026-03-24T00:58:36.3944672Z #9 18.55 npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+2026-03-24T00:58:37.1988109Z #9 19.35 npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+2026-03-24T00:58:37.4530954Z #9 19.61 npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+2026-03-24T00:58:44.0274076Z #9 ...
+2026-03-24T00:58:44.0275369Z 
+2026-03-24T00:58:44.0276871Z #10 [runner 5/6] RUN npm ci --omit=dev
+2026-03-24T00:58:44.0277809Z #10 26.18 npm error code 1
+2026-03-24T00:58:44.2126376Z #10 26.18 npm error path /app/node_modules/mediasoup
+2026-03-24T00:58:44.2130517Z #10 26.18 npm error command failed
+2026-03-24T00:58:44.2134230Z #10 26.18 npm error command sh -c node npm-scripts.mjs postinstall
+2026-03-24T00:58:44.2135308Z #10 26.19 npm error npm-scripts.mjs [36m[INFO] [postinstall][0m 
+2026-03-24T00:58:44.2147095Z #10 26.19 npm error npm-scripts.mjs [36m[INFO] [postinstall][0m downloadPrebuiltWorker() [tarUrl:https://github.com/versatica/mediasoup/releases/download/3.14.7/mediasoup-worker-3.14.7-linux-arm64-kernel6.tgz]
+2026-03-24T00:58:44.2149127Z #10 26.19 npm error npm-scripts.mjs [36m[INFO] [postinstall][0m ensureDir() [dir:worker/prebuild]
+2026-03-24T00:58:44.2150785Z #10 26.19 npm error npm-scripts.mjs [36m[INFO] [postinstall][0m downloadPrebuiltWorker() | no available mediasoup-worker prebuilt binary for current architecture
+2026-03-24T00:58:44.2152667Z #10 26.19 npm error npm-scripts.mjs [36m[INFO] [postinstall][0m couldn't fetch any mediasoup-worker prebuilt binary, building it locally
+2026-03-24T00:58:44.2154044Z #10 26.19 npm error npm-scripts.mjs [36m[INFO] [postinstall][0m buildWorker()
+2026-03-24T00:58:44.2155007Z #10 26.19 npm error npm-scripts.mjs [36m[INFO] [postinstall][0m installInvoke()
+2026-03-24T00:58:44.2156888Z #10 26.19 npm error npm-scripts.mjs [36m[INFO] [postinstall][0m executeCmd(): "python3" -m pip install --upgrade --no-user --target "/app/node_modules/mediasoup/worker/pip_invoke" invoke
+2026-03-24T00:58:44.2158236Z #10 26.19 npm error /usr/bin/python3: No module named pip
+2026-03-24T00:58:44.2160082Z #10 26.19 npm error npm-scripts.mjs [31m[ERROR] [postinstall][0m executeCmd() failed, exiting: Error: Command failed: "python3" -m pip install --upgrade --no-user --target "/app/node_modules/mediasoup/worker/pip_invoke" invoke
+2026-03-24T00:58:44.2161713Z #10 26.21 npm notice
+2026-03-24T00:58:44.2162623Z #10 26.21 npm notice New major version of npm available! 10.9.4 -> 11.12.0
+2026-03-24T00:58:44.2163454Z #10 26.21 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.12.0
+2026-03-24T00:58:44.2164505Z #10 26.21 npm notice To update run: npm install -g npm@11.12.0
+2026-03-24T00:58:44.2165046Z #10 26.21 npm notice
+2026-03-24T00:58:44.2165951Z #10 26.22 npm error A complete log of this run can be found in: /root/.npm/_logs/2026-03-24T00_58_19_935Z-debug-0.log
+2026-03-24T00:58:44.3217880Z #10 ERROR: process "/bin/sh -c npm ci --omit=dev" did not complete successfully: exit code: 1
+2026-03-24T00:58:44.3218907Z 
+2026-03-24T00:58:44.3219371Z #9 [builder 5/8] RUN npm ci
+2026-03-24T00:58:44.4023404Z #9 CANCELED
+2026-03-24T00:58:44.4024160Z ------
+2026-03-24T00:58:44.4024718Z  > [runner 5/6] RUN npm ci --omit=dev:
+2026-03-24T00:58:44.4026455Z 26.19 npm error npm-scripts.mjs [36m[INFO] [postinstall][0m installInvoke()
+2026-03-24T00:58:44.4028472Z 26.19 npm error npm-scripts.mjs [36m[INFO] [postinstall][0m executeCmd(): "python3" -m pip install --upgrade --no-user --target "/app/node_modules/mediasoup/worker/pip_invoke" invoke
+2026-03-24T00:58:44.4030121Z 26.19 npm error /usr/bin/python3: No module named pip
+2026-03-24T00:58:44.4032431Z 26.19 npm error npm-scripts.mjs [31m[ERROR] [postinstall][0m executeCmd() failed, exiting: Error: Command failed: "python3" -m pip install --upgrade --no-user --target "/app/node_modules/mediasoup/worker/pip_invoke" invoke
+2026-03-24T00:58:44.4034192Z 26.21 npm notice
+2026-03-24T00:58:44.4095039Z 26.21 npm notice New major version of npm available! 10.9.4 -> 11.12.0
+2026-03-24T00:58:44.4095666Z 26.21 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.12.0
+2026-03-24T00:58:44.4096326Z 26.21 npm notice To update run: npm install -g npm@11.12.0
+2026-03-24T00:58:44.4096641Z 26.21 npm notice
+2026-03-24T00:58:44.4097047Z 26.22 npm error A complete log of this run can be found in: /root/.npm/_logs/2026-03-24T00_58_19_935Z-debug-0.log
+2026-03-24T00:58:44.4097494Z ------
+2026-03-24T00:58:44.4112532Z Dockerfile:24
+2026-03-24T00:58:44.4112872Z --------------------
+2026-03-24T00:58:44.4113197Z   22 |     
+2026-03-24T00:58:44.4113508Z   23 |     COPY package*.json ./
+2026-03-24T00:58:44.4113927Z   24 | >>> RUN npm ci --omit=dev
+2026-03-24T00:58:44.4114289Z   25 |     
+2026-03-24T00:58:44.4114635Z   26 |     COPY --from=builder /app/dist ./dist
+2026-03-24T00:58:44.4115091Z --------------------
+2026-03-24T00:58:44.4115861Z ERROR: failed to build: failed to solve: process "/bin/sh -c npm ci --omit=dev" did not complete successfully: exit code: 1
+2026-03-24T00:58:44.4163678Z ##[error]Process completed with exit code 1.

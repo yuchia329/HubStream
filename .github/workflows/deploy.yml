@@ -43,7 +43,7 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker buildx build --platform linux/arm64 \
-            --build-arg NEXT_PUBLIC_WS_URL=wss://app.yuchia.dev:4000 \
+            --build-arg NEXT_PUBLIC_WS_URL=wss://app.yuchia.dev:4000/ws \
             --push -t $DOCKERHUB_USERNAME/facetime-client:$IMAGE_TAG ./client
 
       # 5. Build and push the Server ARM64 image

@@ -14,6 +14,7 @@ export const config = {
       logTags: ['info', 'ice', 'dtls', 'rtp'] as mediasoupTypes.WorkerLogTag[],
       rtcMinPort: 40000,
       rtcMaxPort: 40099, // Change this from 49999
+      disableLiburing: true,
     },
 
     routerOptions: {
