@@ -283,8 +283,16 @@ resource "aws_iam_policy" "github_ssm_policy" {
           "ssm:GetCommandInvocation"
         ]
         Resource = [
-          aws_instance.app.arn
+          aws_instance.app.arn,
+          "arn:aws:ssm:*:*:*"
         ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ec2:DescribeInstances"
+        ]
+        Resource = "*"
       }
     ]
   })
@@ -347,6 +355,8 @@ resource "aws_instance" "app" {
         image: $${SERVER_IMAGE}
         restart: always
         network_mode: host
+        security_opt:
+          - seccomp:unconfined
         env_file: .env.prod
         environment:
           PORT: "8443"
@@ -369,7 +379,7 @@ resource "aws_instance" "app" {
           options:
             max-size: "10m"
             max-file: "3"
-    COMPOSEEOF
+COMPOSEEOF
 
     # ------------------------------------------------------------------------------
     # CREATE THE PER-BOOT SCRIPT
@@ -390,6 +400,7 @@ resource "aws_instance" "app" {
     cat > .env.prod <<ENVEOF
     # Required by Mediasoup for WebRtcTransport
     PUBLIC_IP=$PUBLIC_IP 
+    MEDIASOUP_ANNOUNCED_IP=$PUBLIC_IP
     
     # Used by the frontend and clients
     CLIENT_ORIGIN=https://app.yuchia.dev
@@ -398,12 +409,12 @@ resource "aws_instance" "app" {
     # Docker configuration (defaults, will be replaced by GitHub Actions)
     CLIENT_IMAGE=yuchia329/facetime-client:latest
     SERVER_IMAGE=yuchia329/facetime-server:latest
-    ENVEOF
+ENVEOF
 
     # 3. Pull the absolute latest image from Docker Hub and start the container
     docker compose -f docker-compose.prod.yml --env-file .env.prod pull
     docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
-    BOOTEOF
+BOOTEOF
 
     # Make the per-boot script executable
     chmod +x /var/lib/cloud/scripts/per-boot/01-start-facetime.sh
