@@ -93,13 +93,13 @@ jobs:
             --instance-ids "$INSTANCE_ID" \
             --document-name "AWS-RunShellScript" \
             --comment "Deploying $IMAGE_TAG" \
-            --parameters commands=[ \
-              "cd /opt/facetime", \
-              "sed -i 's|^CLIENT_IMAGE=.*|CLIENT_IMAGE=$DOCKERHUB_USERNAME/facetime-client:$IMAGE_TAG|' .env.prod", \
-              "sed -i 's|^SERVER_IMAGE=.*|SERVER_IMAGE=$DOCKERHUB_USERNAME/facetime-server:$IMAGE_TAG|' .env.prod", \
-              "sudo docker compose -f docker-compose.prod.yml --env-file .env.prod pull", \
-              "sudo docker compose -f docker-compose.prod.yml --env-file .env.prod up -d" \
-            ] \
+            --parameters "commands=[ \
+              \"cd /opt/facetime\", \
+              \"sed -i 's|^CLIENT_IMAGE=.*|CLIENT_IMAGE=$DOCKERHUB_USERNAME/facetime-client:$IMAGE_TAG|' .env.prod\", \
+              \"sed -i 's|^SERVER_IMAGE=.*|SERVER_IMAGE=$DOCKERHUB_USERNAME/facetime-server:$IMAGE_TAG|' .env.prod\", \
+              \"sudo docker compose -f docker-compose.prod.yml --env-file .env.prod pull\", \
+              \"sudo docker compose -f docker-compose.prod.yml --env-file .env.prod up -d\" \
+            ]" \
             --query "Command.CommandId" \
             --output text)
             
