@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+const backendUrl = process.env.BACKEND_URL || 'http://localhost:4000';
+
 const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
@@ -7,15 +9,15 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/ws',
-        destination: 'http://server:4000/ws',
+        destination: `${backendUrl}/ws`,
       },
       {
         source: '/ws-p2p',
-        destination: 'http://server:4000/ws-p2p',
+        destination: `${backendUrl}/ws-p2p`,
       },
       {
         source: '/api/:path*',
-        destination: 'http://server:4000/api/:path*',
+        destination: `${backendUrl}/api/:path*`,
       },
     ];
   },

@@ -248,7 +248,7 @@ resource "aws_iam_role" "github_actions_role" {
         }
         Condition = {
           StringLike = {
-            "token.actions.githubusercontent.com:sub" : "repo:yuchia329/facetime:*"
+            "token.actions.githubusercontent.com:sub" : "repo:yuchia329/facetime:*" # replace yuchia329 with your github username
           }
           StringEquals = {
             "token.actions.githubusercontent.com:aud" : "sts.amazonaws.com"
@@ -369,6 +369,8 @@ resource "aws_instance" "app" {
         restart: always
         ports:
           - "80:3000"
+        environment:
+          - BACKEND_URL=http://server:4000
         env_file: .env.prod
         extra_hosts:
           - "server:host-gateway"
@@ -403,11 +405,11 @@ COMPOSEEOF
     MEDIASOUP_ANNOUNCED_IP=$PUBLIC_IP
     
     # Used by the frontend and clients
-    CLIENT_ORIGIN=https://app.yuchia.dev
+    CLIENT_ORIGIN=https://app.yuchia.dev #Replace this with your domain
     
     # Docker configuration (defaults, will be replaced by GitHub Actions)
-    CLIENT_IMAGE=yuchia329/facetime-client:latest
-    SERVER_IMAGE=yuchia329/facetime-server:latest
+    CLIENT_IMAGE=yuchia329/facetime-client:latest #REPLACE THIS with your DockerHub repository
+    SERVER_IMAGE=yuchia329/facetime-server:latest #REPLACE THIS with your DockerHub repository
 ENVEOF
 
     # 3. Pull the absolute latest image from Docker Hub and start the container

@@ -25,6 +25,18 @@ lsof -ti:3000 | xargs kill -9 2>/dev/null
 lsof -ti:4000 | xargs kill -9 2>/dev/null
 killall ngrok 2>/dev/null
 
+# Install dependencies if missing
+echo -e "${YELLOW}[1.5/5] Checking Node dependencies...${NC}"
+if [ ! -d "server/node_modules" ]; then
+    echo -e "${BLUE}Installing Server dependencies...${NC}"
+    (cd server && npm install)
+fi
+
+if [ ! -d "client/node_modules" ]; then
+    echo -e "${BLUE}Installing Client dependencies...${NC}"
+    (cd client && npm install)
+fi
+
 # 2. Get the Local IP Address (macOS specific for WiFi interface en0)
 echo -e "${YELLOW}[2/5] Detecting Local IP Address...${NC}"
 LOCAL_IP=$(ipconfig getifaddr en0)

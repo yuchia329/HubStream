@@ -23,7 +23,7 @@ terraform {
 
 provider "aws" {
   region  = var.aws_region
-  profile = "hotmail"
+  # profile = "default" # Uncomment if you use a specific AWS CLI profile
 }
 
 provider "cloudflare" {

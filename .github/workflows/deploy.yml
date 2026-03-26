@@ -60,7 +60,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::554771082581:role/facetime-github-actions-deploy-role
+          role-to-assume: arn:aws:iam::554771082581:role/facetime-github-actions-deploy-role # Change to your own AWS Account ID!
           aws-region: us-east-1
 
       # 6. Execute deployment commands via AWS Systems Manager
