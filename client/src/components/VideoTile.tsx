@@ -30,7 +30,25 @@ export default function VideoTile({
   useEffect(() => {
     const video = videoRef.current;
     if (!video || !stream) return;
-    video.srcObject = stream;
+    
+    // Initial assignment
+    if (video.srcObject !== stream) {
+      video.srcObject = stream;
+    }
+
+    // Force re-assignment when tracks dynamically arrive (e.g. video consumed after audio)
+    const handleTrackEvent = () => {
+      video.srcObject = null;
+      video.srcObject = stream;
+    };
+
+    stream.addEventListener('addtrack', handleTrackEvent);
+    stream.addEventListener('removetrack', handleTrackEvent);
+
+    return () => {
+      stream.removeEventListener('addtrack', handleTrackEvent);
+      stream.removeEventListener('removetrack', handleTrackEvent);
+    };
   }, [stream]);
 
   return (
