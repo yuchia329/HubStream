@@ -10,6 +10,9 @@ COPY . .
 ARG NEXT_PUBLIC_WS_URL
 ENV NEXT_PUBLIC_WS_URL=${NEXT_PUBLIC_WS_URL}
 
+ARG BACKEND_URL=http://server:4000
+ENV BACKEND_URL=${BACKEND_URL}
+
 RUN npm run build
 
 # ── Production stage ──────────────────────────────────────────

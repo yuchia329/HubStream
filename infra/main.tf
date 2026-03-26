@@ -405,6 +405,8 @@ COMPOSEEOF
     MEDIASOUP_ANNOUNCED_IP=$PUBLIC_IP
     
     # Used by the frontend and clients
+    BACKEND_URL=http://server:4000
+    
     CLIENT_ORIGIN=https://facetime.yuchia.dev #Replace this with your domain
     
     # Docker configuration (defaults, will be replaced by GitHub Actions)

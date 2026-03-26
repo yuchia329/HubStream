@@ -26,6 +26,8 @@ services:
     restart: always
     ports:
       - "80:3000"
+    extra_hosts:
+      - "server:host-gateway"
     environment:
       - NODE_ENV=production
       - BACKEND_URL=http://server:4000
