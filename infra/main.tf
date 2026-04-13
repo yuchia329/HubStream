@@ -248,7 +248,7 @@ resource "aws_iam_role" "github_actions_role" {
         }
         Condition = {
           StringLike = {
-            "token.actions.githubusercontent.com:sub" : "repo:yuchia329/hubstream:*" # replace yuchia329 with your github username
+            "token.actions.githubusercontent.com:sub" : "repo:yuchia329/HubStream:*" # replace yuchia329 with your github username
           }
           StringEquals = {
             "token.actions.githubusercontent.com:aud" : "sts.amazonaws.com"
@@ -330,14 +330,14 @@ resource "aws_instance" "app" {
     apt-get install -y curl ca-certificates gnupg lsb-release
 
     echo "[2/4] Starting SSM Agent..."
-    snap install amazon-ssm-agent --classic
-    systemctl enable --now snap.amazon-ssm-agent.amazon-ssm-agent.service
+    snap list amazon-ssm-agent || snap install amazon-ssm-agent --classic
+    systemctl enable --now snap.amazon-ssm-agent.amazon-ssm-agent.service || true
 
     echo "[3/4] Installing Docker Engine..."
     install -m 0755 -d /etc/apt/keyrings
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-    chmod a+r /etc/apt/keyrings/docker.gpg
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    chmod a+r /etc/apt/keyrings/docker.asc
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
     apt-get update -y
     apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
     systemctl enable docker
