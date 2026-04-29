@@ -113,10 +113,13 @@ export function useRoom(
                 const stats = await transport!.getStats();
                 if (!stats) return; // sometimes getStats throws or returns undefined on closed transport
                 
+                let latencyValue: number | undefined;
+
                 let foundCandidatePair = false;
                 stats.forEach((stat: any) => {
                     if (stat.type === 'candidate-pair' && stat.state === 'succeeded' && stat.currentRoundTripTime !== undefined) {
-                        setNetworkLatency(Math.round((stat.currentRoundTripTime as number) * 1000));
+                        latencyValue = Math.round((stat.currentRoundTripTime as number) * 1000);
+                        setNetworkLatency(latencyValue);
                         foundCandidatePair = true;
                     }
                 });
@@ -125,9 +128,14 @@ export function useRoom(
                 if (!foundCandidatePair) {
                     stats.forEach((stat: any) => {
                         if (stat.type === 'remote-inbound-rtp' && stat.roundTripTime !== undefined) {
-                            setNetworkLatency(Math.round((stat.roundTripTime as number) * 1000));
+                            latencyValue = Math.round((stat.roundTripTime as number) * 1000);
+                            setNetworkLatency(latencyValue);
                         }
                     });
+                }
+
+                if (latencyValue !== undefined && wsRef.current?.readyState === WebSocket.OPEN) {
+                    wsRef.current.send(JSON.stringify({ type: 'clientStats', data: { latency: latencyValue } }));
                 }
             } catch (err) {}
         }, 2000);

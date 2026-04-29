@@ -9,10 +9,14 @@ import { config } from './config';
 import { getWorker } from './sfu/worker';
 import { handleConnection } from './signaling/wsHandler';
 import { handleP2PConnection } from './signaling/p2pHandler';
+import { register, startMetricsPolling } from './metrics';
 
 async function main(): Promise<void> {
   // Pre-warm the mediasoup Worker
   await getWorker();
+
+  // Start background metrics polling loop
+  startMetricsPolling();
 
   const app = express();
   app.use(cors({ origin: config.clientOrigin }));
@@ -21,6 +25,16 @@ async function main(): Promise<void> {
   // Health check
   app.get('/api/health', (_req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  });
+
+  // Prometheus Metrics
+  app.get('/metrics', async (_req, res) => {
+    try {
+      res.set('Content-Type', register.contentType);
+      res.end(await register.metrics());
+    } catch (ex) {
+      res.status(500).end(ex);
+    }
   });
 
   // Visitor log helper
@@ -41,6 +55,7 @@ async function main(): Promise<void> {
     }
     const logFile = path.join(logDir, 'visitors.log');
     const resolvedIp = Array.isArray(ip) ? ip[0] : (ip || 'unknown');
+    console.log(`${timestamp} - IP: ${resolvedIp} - ID: ${visitorId} - Device: ${deviceType} - Mode: ${mode} - Event: ${eventType}\n`)
     fs.appendFileSync(logFile, `${timestamp} - IP: ${resolvedIp} - ID: ${visitorId} - Device: ${deviceType} - Mode: ${mode} - Event: ${eventType}\n`);
   };
 

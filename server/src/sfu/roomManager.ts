@@ -73,6 +73,10 @@ export function getRoom(roomId: string): Room | undefined {
   return rooms.get(roomId);
 }
 
+export function getAllRooms(): Room[] {
+  return Array.from(rooms.values());
+}
+
 // ─── Peer CRUD ────────────────────────────────────────────────────────────────
 
 export function createPeer(id: string, displayName: string): Peer {

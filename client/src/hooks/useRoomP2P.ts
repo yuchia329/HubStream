@@ -73,7 +73,11 @@ export function useRoomP2P(roomId: string, displayName: string): UseRoomResult {
 
             Promise.all(promises).then(() => {
                 if (count > 0) {
-                    setNetworkLatency(Math.round(totalRTT / count));
+                    const avgPing = Math.round(totalRTT / count);
+                    setNetworkLatency(avgPing);
+                    if (wsRef.current?.readyState === WebSocket.OPEN) {
+                        wsRef.current.send(JSON.stringify({ type: 'clientStats', data: { latency: avgPing } }));
+                    }
                 }
                 if (latenciesChanged) {
                     syncParticipants();

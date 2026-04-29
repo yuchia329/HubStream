@@ -1,5 +1,6 @@
 import WebSocket from 'ws';
 import { v4 as uuidv4 } from 'uuid';
+import { clientPingHistogram } from '../metrics';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -153,6 +154,15 @@ export function handleP2PConnection(ws: WebSocket): void {
           }, peerId);
 
           reply(ws, 'chatSent', { ok: true }, id);
+          break;
+        }
+
+        // ──────────────────────────────────────────────────────── clientStats
+        case 'clientStats': {
+          const latency = data.latency as number;
+          if (typeof latency === 'number' && latency >= 0) {
+            clientPingHistogram.observe(latency);
+          }
           break;
         }
 

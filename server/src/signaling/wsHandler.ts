@@ -12,6 +12,7 @@ import {
   getExistingProducers,
   Room,
 } from '../sfu/roomManager';
+import { clientPingHistogram } from '../metrics';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -301,6 +302,15 @@ export async function handleConnection(ws: WebSocket): Promise<void> {
 
           // Acknowledge sending
           reply(ws, 'chatSent', { ok: true }, id);
+          break;
+        }
+
+        // ────────────────────────────────────────────────────── client stats
+        case 'clientStats': {
+          const latency = data.latency as number;
+          if (typeof latency === 'number' && latency >= 0) {
+            clientPingHistogram.observe(latency);
+          }
           break;
         }
 
