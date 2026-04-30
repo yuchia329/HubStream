@@ -44,7 +44,6 @@ async function main(): Promise<void> {
       const match = cookieString.match(/visitor_id=([^;]+)/);
       if (match) visitorId = match[1];
     }
-    console.log('useragent: ', userAgent)
     const isMobile = userAgent ? /Mobi|Android|iPhone|iPad/i.test(userAgent) : false;
     const deviceType = isMobile ? 'Mobile' : 'Desktop';
 
