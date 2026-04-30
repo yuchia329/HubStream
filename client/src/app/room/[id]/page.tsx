@@ -59,7 +59,7 @@ export default function RoomPage({ params }: PageProps) {
       const portrait = window.innerHeight > window.innerWidth;
       setIsPortrait(portrait);
       // In portrait, filmstrip wraps to an infinite grid below main screen so we can show many.
-      setFilmstripPageSize(portrait ? 2 : 3); 
+      setFilmstripPageSize(portrait ? 2 : 3);
       setGridPageSize(portrait ? 4 : 9);
     };
 
@@ -72,7 +72,7 @@ export default function RoomPage({ params }: PageProps) {
     let landscape = 0;
     let portrait = 0;
     const allStreams = [localStream, ...participants.map(p => p.stream)].filter(Boolean) as MediaStream[];
-    
+
     allStreams.forEach(s => {
       const vt = s.getVideoTracks()[0];
       if (vt) {
@@ -150,14 +150,14 @@ export default function RoomPage({ params }: PageProps) {
       speakerIsLocal = false;
     }
   }
-  
+
   const remoteIsCamOff = (s: MediaStream | null, paused?: boolean) => {
     if (!s) return true;
     if (s.getVideoTracks().length === 0) return true;
     return !!paused;
   };
 
-  let speakerIsMuted = speakerIsLocal ? isMuted : false;
+  let speakerIsMuted = speakerIsLocal ? isMuted : (participants.find(p => p.stream === speakerStream)?.isMuted ?? false);
   let speakerIsCamOff = speakerIsLocal ? isCamOff : remoteIsCamOff(speakerStream, participants.find(p => p.stream === speakerStream)?.isCamPaused);
 
   // Shared sort logic: Speaking > Recently Spoke > Camera ON > Camera OFF
@@ -165,26 +165,26 @@ export default function RoomPage({ params }: PageProps) {
     a: { peerId: string; stream: MediaStream | null; isCamPaused?: boolean; lastSpokeAt?: number },
     b: { peerId: string; stream: MediaStream | null; isCamPaused?: boolean; lastSpokeAt?: number }
   ) => {
-      // 1. Currently active speaker always wins
-      const aSpeaking = activeSpeakerIds.includes(a.peerId);
-      const bSpeaking = activeSpeakerIds.includes(b.peerId);
-      if (aSpeaking && !bSpeaking) return -1;
-      if (!aSpeaking && bSpeaking) return 1;
+    // 1. Currently active speaker always wins
+    const aSpeaking = activeSpeakerIds.includes(a.peerId);
+    const bSpeaking = activeSpeakerIds.includes(b.peerId);
+    if (aSpeaking && !bSpeaking) return -1;
+    if (!aSpeaking && bSpeaking) return 1;
 
-      // 2. Hardware state: Camera ON beats Camera OFF (unless currently speaking, which was handled above)
-      const aCamOn = a.peerId === 'local' ? !isCamOff : !remoteIsCamOff(a.stream, a.isCamPaused);
-      const bCamOn = b.peerId === 'local' ? !isCamOff : !remoteIsCamOff(b.stream, b.isCamPaused);
-      
-      if (aCamOn && !bCamOn) return -1;
-      if (!aCamOn && bCamOn) return 1;
+    // 2. Hardware state: Camera ON beats Camera OFF (unless currently speaking, which was handled above)
+    const aCamOn = a.peerId === 'local' ? !isCamOff : !remoteIsCamOff(a.stream, a.isCamPaused);
+    const bCamOn = b.peerId === 'local' ? !isCamOff : !remoteIsCamOff(b.stream, b.isCamPaused);
 
-      // 3. Who spoke most recently? (Sticky Speaker priority among tied users)
-      const aSpokeAt = a.peerId === 'local' ? localLastSpokeAt : (a.lastSpokeAt || 0);
-      const bSpokeAt = b.peerId === 'local' ? localLastSpokeAt : (b.lastSpokeAt || 0);
-      if (aSpokeAt > bSpokeAt) return -1;
-      if (aSpokeAt < bSpokeAt) return 1;
-      
-      return 0;
+    if (aCamOn && !bCamOn) return -1;
+    if (!aCamOn && bCamOn) return 1;
+
+    // 3. Who spoke most recently? (Sticky Speaker priority among tied users)
+    const aSpokeAt = a.peerId === 'local' ? localLastSpokeAt : (a.lastSpokeAt || 0);
+    const bSpokeAt = b.peerId === 'local' ? localLastSpokeAt : (b.lastSpokeAt || 0);
+    if (aSpokeAt > bSpokeAt) return -1;
+    if (aSpokeAt < bSpokeAt) return 1;
+
+    return 0;
   };
 
   // Build the filmstrip list (excluding the current speaker)
@@ -201,21 +201,22 @@ export default function RoomPage({ params }: PageProps) {
     isLocal: false,
     streamToMatch: p.stream,
     isCamPaused: p.isCamPaused,
+    isMuted: p.isMuted,
     lastSpokeAt: p.lastSpokeAt,
     latency: p.latency,
   }));
-  
+
   // Apply the same priority sorting to the grid view remotes
   allGridPeers.sort(sortPeers);
 
   // Local user always takes exactly 1 slot on every page
   const gridTotalPages = Math.ceil(allGridPeers.length / (gridPageSize - 1)) || 1;
-  
+
   // Guard against out of bounds if people leave
   const safeGridPage = Math.min(gridPage, Math.max(0, gridTotalPages - 1));
-  
+
   const displayGridPeers = [
-    { peerId: 'local', stream: localStream, displayName, isLocal: true, streamToMatch: localStream, isCamPaused: false, lastSpokeAt: localLastSpokeAt, latency: networkLatency },
+    { peerId: 'local', stream: localStream, displayName, isLocal: true, streamToMatch: localStream, isCamPaused: false, isMuted: isMuted, lastSpokeAt: localLastSpokeAt, latency: networkLatency },
     ...allGridPeers.slice(safeGridPage * (gridPageSize - 1), (safeGridPage + 1) * (gridPageSize - 1))
   ];
 
@@ -234,10 +235,10 @@ export default function RoomPage({ params }: PageProps) {
       if (count === 1) return { c: 1, r: 1 };
       if (count === 2) return { c: 1, r: 2 };
       if (count === 3) return { c: 1, r: 3 };
-      if (count === 4) return { c: 2, r: 2 }; 
-      if (count <= 6) return { c: 2, r: 3 }; 
-      if (count <= 8) return { c: 2, r: 4 }; 
-      if (count <= 12) return { c: 2, r: 6 }; 
+      if (count === 4) return { c: 2, r: 2 };
+      if (count <= 6) return { c: 2, r: 3 };
+      if (count <= 8) return { c: 2, r: 4 };
+      if (count <= 12) return { c: 2, r: 6 };
       return { c: 2, r: Math.ceil(count / 2) };
     }
     if (envP && sourceP) {
@@ -310,127 +311,127 @@ export default function RoomPage({ params }: PageProps) {
 
       {/* Main Content Area */}
       <div className="room-main">
-          {layoutMode === 'grid' ? (
-              <div className="grid-layout-container">
-                  {gridTotalPages > 1 && safeGridPage > 0 && (
-                      <button className="grid-nav-btn prev" onClick={() => setGridPage(p => Math.max(0, p - 1))}>
-                          &#10094;
-                      </button>
-                  )}
-                  <div 
-                    className="video-grid"
-                    style={{ 
-                      display: 'grid', 
-                      gridTemplateColumns: `repeat(${gridDims.c}, 1fr)`, 
-                      gridTemplateRows: `repeat(${gridDims.r}, 1fr)` 
-                    }}
+        {layoutMode === 'grid' ? (
+          <div className="grid-layout-container">
+            {gridTotalPages > 1 && safeGridPage > 0 && (
+              <button className="grid-nav-btn prev" onClick={() => setGridPage(p => Math.max(0, p - 1))}>
+                &#10094;
+              </button>
+            )}
+            <div
+              className="video-grid"
+              style={{
+                display: 'grid',
+                gridTemplateColumns: `repeat(${gridDims.c}, 1fr)`,
+                gridTemplateRows: `repeat(${gridDims.r}, 1fr)`
+              }}
+            >
+              {displayGridPeers.map((p, i) => (
+                <VideoTile
+                  key={p.peerId || i}
+                  stream={p.stream}
+                  displayName={p.displayName}
+                  isMuted={p.isLocal ? isMuted : (p.isMuted ?? false)}
+                  isCamOff={p.isLocal ? isCamOff : remoteIsCamOff(p.stream, p.isCamPaused)}
+                  isLocal={p.isLocal}
+                  isSpeaking={activeSpeakerIds.includes(p.peerId)}
+                  isPinned={pinnedUserId === p.peerId}
+                  latency={p.latency}
+                  onPin={() => { setPinnedUserId(p.peerId); setLayoutMode('speaker'); }}
+                  onUnpin={() => setPinnedUserId(null)}
+                />
+              ))}
+            </div>
+            {gridTotalPages > 1 && safeGridPage < gridTotalPages - 1 && (
+              <button className="grid-nav-btn next" onClick={() => setGridPage(p => Math.min(gridTotalPages - 1, p + 1))}>
+                &#10095;
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="speaker-layout">
+            {/* Big Speaker View */}
+            <div className="speaker-main-tile">
+              <VideoTile
+                stream={speakerStream}
+                displayName={speakerName}
+                isMuted={speakerIsMuted}
+                isCamOff={speakerIsCamOff}
+                isLocal={speakerIsLocal}
+                isSpeaking={speakerIsLocal ? activeSpeakerIds.includes('local') : activeSpeakerIds.includes((dominantSpeakerId || participants.find(p => p.stream === speakerStream)?.peerId) || '')}
+                isPinned={speakerIsLocal ? pinnedUserId === 'local' : pinnedUserId === (participants.find(p => p.stream === speakerStream)?.peerId)}
+                latency={speakerIsLocal ? networkLatency : (participants.find(p => p.stream === speakerStream)?.latency ?? networkLatency)}
+                onPin={() => { setPinnedUserId(speakerIsLocal ? 'local' : participants.find(p => p.stream === speakerStream)?.peerId || null); setLayoutMode('speaker'); }}
+                onUnpin={() => setPinnedUserId(null)}
+              />
+            </div>
+
+            {/* Side/Bottom Filmstrip ONLY for 'speaker' mode, when NOT hidden */}
+            {layoutMode === 'speaker' && showFilmstrip && (
+              <div className="speaker-filmstrip">
+                {filmstripIndex > 0 && (
+                  <button
+                    className="filmstrip-nav btn-prev"
+                    onClick={() => setFilmstripIndex((p) => Math.max(0, p - 1))}
                   >
-                      {displayGridPeers.map((p, i) => (
-                          <VideoTile
-                              key={p.peerId || i}
-                              stream={p.stream}
-                              displayName={p.displayName}
-                              isMuted={p.isLocal ? isMuted : false}
-                              isCamOff={p.isLocal ? isCamOff : remoteIsCamOff(p.stream, p.isCamPaused)}
-                              isLocal={p.isLocal}
-                              isSpeaking={activeSpeakerIds.includes(p.peerId)}
-                              isPinned={pinnedUserId === p.peerId}
-                              latency={p.latency}
-                              onPin={() => { setPinnedUserId(p.peerId); setLayoutMode('speaker'); }}
-                              onUnpin={() => setPinnedUserId(null)}
-                          />
-                      ))}
+                    ▲
+                  </button>
+                )}
+
+                {displayFilmstrip.map((p) => (
+                  <div key={p.peerId} className="filmstrip-tile-wrapper">
+                    <VideoTile
+                      stream={p.stream}
+                      displayName={p.displayName}
+                      isLocal={p.peerId === 'local'}
+                      isMuted={p.peerId === 'local' ? isMuted : (p.isMuted ?? false)}
+                      isCamOff={remoteIsCamOff(p.stream, p.isCamPaused)}
+                      isSpeaking={activeSpeakerIds.includes(p.peerId)}
+                      isPinned={pinnedUserId === p.peerId}
+                      latency={p.latency}
+                      onPin={() => { setPinnedUserId(p.peerId); setLayoutMode('speaker'); }}
+                      onUnpin={() => setPinnedUserId(null)}
+                    />
                   </div>
-                  {gridTotalPages > 1 && safeGridPage < gridTotalPages - 1 && (
-                      <button className="grid-nav-btn next" onClick={() => setGridPage(p => Math.min(gridTotalPages - 1, p + 1))}>
-                          &#10095;
-                      </button>
-                  )}
+                ))}
+
+                {filmstripIndex + filmstripPageSize < filmstripPeers.length && (
+                  <button
+                    className="filmstrip-nav btn-next"
+                    onClick={() => setFilmstripIndex((p) => p + 1)}
+                  >
+                    ▼
+                  </button>
+                )}
               </div>
-          ) : (
-              <div className="speaker-layout">
-                  {/* Big Speaker View */}
-                  <div className="speaker-main-tile">
-                      <VideoTile
-                          stream={speakerStream}
-                          displayName={speakerName}
-                          isMuted={speakerIsMuted}
-                          isCamOff={speakerIsCamOff}
-                          isLocal={speakerIsLocal}
-                          isSpeaking={speakerIsLocal ? activeSpeakerIds.includes('local') : activeSpeakerIds.includes((dominantSpeakerId || participants.find(p => p.stream === speakerStream)?.peerId) || '')}
-                          isPinned={speakerIsLocal ? pinnedUserId === 'local' : pinnedUserId === (participants.find(p => p.stream === speakerStream)?.peerId)}
-                          latency={speakerIsLocal ? networkLatency : (participants.find(p => p.stream === speakerStream)?.latency ?? networkLatency)}
-                          onPin={() => { setPinnedUserId(speakerIsLocal ? 'local' : participants.find(p => p.stream === speakerStream)?.peerId || null); setLayoutMode('speaker'); }}
-                          onUnpin={() => setPinnedUserId(null)}
-                      />
-                  </div>
+            )}
 
-                  {/* Side/Bottom Filmstrip ONLY for 'speaker' mode, when NOT hidden */}
-                  {layoutMode === 'speaker' && showFilmstrip && (
-                      <div className="speaker-filmstrip">
-                          {filmstripIndex > 0 && (
-                              <button 
-                                className="filmstrip-nav btn-prev" 
-                                onClick={() => setFilmstripIndex((p) => Math.max(0, p - 1))}
-                              >
-                                  ▲
-                              </button>
-                          )}
-                          
-                          {displayFilmstrip.map((p) => (
-                              <div key={p.peerId} className="filmstrip-tile-wrapper">
-                                  <VideoTile
-                                      stream={p.stream}
-                                      displayName={p.displayName}
-                                      isLocal={p.peerId === 'local'}
-                                      isMuted={false}
-                                      isCamOff={remoteIsCamOff(p.stream, p.isCamPaused)}
-                                      isSpeaking={activeSpeakerIds.includes(p.peerId)}
-                                      isPinned={pinnedUserId === p.peerId}
-                                      latency={p.latency}
-                                      onPin={() => { setPinnedUserId(p.peerId); setLayoutMode('speaker'); }}
-                                      onUnpin={() => setPinnedUserId(null)}
-                                  />
-                              </div>
-                          ))}
-
-                          {filmstripIndex + filmstripPageSize < filmstripPeers.length && (
-                              <button 
-                                className="filmstrip-nav btn-next" 
-                                onClick={() => setFilmstripIndex((p) => p + 1)}
-                              >
-                                  ▼
-                              </button>
-                          )}
-                      </div>
-                  )}
-
-                  {/* Floating Self View (Google Meet style PiP) */}
-                  {!speakerIsLocal && (
-                      <div className="floating-self-view">
-                          <VideoTile
-                              stream={localStream}
-                              displayName={displayName}
-                              isMuted={isMuted}
-                              isCamOff={isCamOff}
-                              isLocal
-                              isSpeaking={activeSpeakerIds.includes('local')}
-                              isPinned={pinnedUserId === 'local'}
-                              latency={networkLatency}
-                              onPin={() => { setPinnedUserId('local'); setLayoutMode('speaker'); }}
-                              onUnpin={() => setPinnedUserId(null)}
-                          />
-                      </div>
-                  )}
+            {/* Floating Self View (Google Meet style PiP) */}
+            {!speakerIsLocal && (
+              <div className="floating-self-view">
+                <VideoTile
+                  stream={localStream}
+                  displayName={displayName}
+                  isMuted={isMuted}
+                  isCamOff={isCamOff}
+                  isLocal
+                  isSpeaking={activeSpeakerIds.includes('local')}
+                  isPinned={pinnedUserId === 'local'}
+                  latency={networkLatency}
+                  onPin={() => { setPinnedUserId('local'); setLayoutMode('speaker'); }}
+                  onUnpin={() => setPinnedUserId(null)}
+                />
               </div>
-          )}
+            )}
+          </div>
+        )}
       </div>
 
-      <ChatPanel 
-          isOpen={isChatOpen} 
-          onClose={() => setIsChatOpen(false)} 
-          messages={chatMessages} 
-          onSend={sendChat} 
+      <ChatPanel
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+        messages={chatMessages}
+        onSend={sendChat}
       />
 
       {/* Controls */}

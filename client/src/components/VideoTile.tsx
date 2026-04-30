@@ -32,7 +32,7 @@ export default function VideoTile({
   useEffect(() => {
     const video = videoRef.current;
     if (!video || !stream) return;
-    
+
     // Initial assignment
     if (video.srcObject !== stream) {
       video.srcObject = stream;
@@ -62,7 +62,7 @@ export default function VideoTile({
         playsInline
         muted={isLocal || isMuted}
         className="video-element"
-        style={{ 
+        style={{
           transform: isLocal ? 'scaleX(-1)' : 'none',
           opacity: isCamOff ? 0 : 1,
           visibility: isCamOff ? 'hidden' : 'visible',
@@ -96,10 +96,27 @@ export default function VideoTile({
 
       {/* Name badge */}
       <div className="tile-footer">
-        <span className="participant-name">{isLocal ? `${displayName} (You)` : displayName}</span>
-        {isMuted && (
-          <span className="mute-badge" title="Muted">
-            Muted
+        <span className="participant-name">{displayName}</span>
+        {!isLocal && isMuted && (
+          <span className="mute-badge" title="Muted" style={{ fontSize: '14px' }}>
+            🔇
+          </span>
+        )}
+        {/* Ping badge — aligned with name in footer */}
+        {latency !== undefined && latency >= 0 && (
+          <span
+            style={{
+              marginLeft: 'auto',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '11px',
+              fontWeight: 600,
+              color: latency < 100 ? '#4ade80' : latency < 200 ? '#facc15' : '#f87171',
+            }}
+          >
+            <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }} />
+            {latency}ms
           </span>
         )}
       </div>
@@ -107,35 +124,7 @@ export default function VideoTile({
       {/* Local badge */}
       {isLocal && <span className="local-badge">YOU</span>}
 
-      {/* Latency badge */}
-      {latency !== undefined && latency >= 0 && (
-        <span 
-          className="latency-badge"
-          style={{
-            position: 'absolute',
-            top: '8px',
-            right: '8px',
-            backgroundColor: 'rgba(0, 0, 0, 0.6)',
-            color: latency < 100 ? '#4ade80' : latency < 200 ? '#facc15' : '#f87171',
-            padding: '2px 6px',
-            borderRadius: '4px',
-            fontSize: '11px',
-            fontWeight: 600,
-            zIndex: 10,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px'
-          }}
-        >
-          <div style={{
-            width: '6px',
-            height: '6px',
-            borderRadius: '50%',
-            backgroundColor: 'currentColor'
-          }} />
-          {latency}ms
-        </span>
-      )}
+
     </div>
   );
 }

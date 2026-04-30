@@ -10,7 +10,7 @@ let gumLock = Promise.resolve();
 const getWsUrl = () => {
     if (typeof window === 'undefined') return '';
     if (process.env.NEXT_PUBLIC_WS_URL) return process.env.NEXT_PUBLIC_WS_URL;
-    
+
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     // We configured Next.js rewrites to proxy `/ws` directly to `localhost:4000/ws`.
     // This means the frontend can just talk to its own host (e.g., ngrok) on the same port!
@@ -24,6 +24,7 @@ export interface RemoteParticipant {
     displayName: string;
     stream: MediaStream;
     isCamPaused?: boolean;
+    isMuted?: boolean;
     lastSpokeAt?: number;
     latency?: number;
 }
@@ -77,8 +78,8 @@ export function useRoom(
     const localVideoProducerRef = useRef<mediasoupTypes.Producer | null>(null);
     const localAudioProducerRef = useRef<mediasoupTypes.Producer | null>(null);
 
-    // peerId → { stream, displayName, consumers, isCamPaused, lastSpokeAt }
-    const peerStreamsRef = useRef<Map<string, { stream: MediaStream; displayName: string; consumers: Map<string, mediasoupTypes.Consumer>; isCamPaused?: boolean; lastSpokeAt?: number }>>(new Map());
+    // peerId → { stream, displayName, consumers, isCamPaused, isMuted, lastSpokeAt }
+    const peerStreamsRef = useRef<Map<string, { stream: MediaStream; displayName: string; consumers: Map<string, mediasoupTypes.Consumer>; isCamPaused?: boolean; isMuted?: boolean; lastSpokeAt?: number }>>(new Map());
 
     const [localStream, setLocalStream] = useState<MediaStream | null>(null);
     const [participants, setParticipants] = useState<RemoteParticipant[]>([]);
@@ -94,7 +95,7 @@ export function useRoom(
     const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
     const [watchedVideoPeers, setWatchedVideoPeersState] = useState<string[]>([]);
     const [networkLatency, setNetworkLatency] = useState<number | undefined>(undefined);
-    
+
     const setWatchedVideoPeers = useCallback((newPeers: string[]) => {
         setWatchedVideoPeersState(prev => {
             if (prev.length === newPeers.length && prev.every(p => newPeers.includes(p))) return prev;
@@ -112,7 +113,7 @@ export function useRoom(
                 const transport = sendTransportRef.current || recvTransportRef.current;
                 const stats = await transport!.getStats();
                 if (!stats) return; // sometimes getStats throws or returns undefined on closed transport
-                
+
                 let latencyValue: number | undefined;
 
                 let foundCandidatePair = false;
@@ -137,7 +138,7 @@ export function useRoom(
                 if (latencyValue !== undefined && wsRef.current?.readyState === WebSocket.OPEN) {
                     wsRef.current.send(JSON.stringify({ type: 'clientStats', data: { latency: latencyValue } }));
                 }
-            } catch (err) {}
+            } catch (err) { }
         }, 2000);
         return () => clearInterval(interval);
     }, [isConnected]);
@@ -145,11 +146,12 @@ export function useRoom(
     // Derive participants array from ref map
     function syncParticipants() {
         setParticipants(
-            [...peerStreamsRef.current.entries()].map(([pid, { stream, displayName: dn, isCamPaused, lastSpokeAt }]) => ({
+            [...peerStreamsRef.current.entries()].map(([pid, { stream, displayName: dn, isCamPaused, isMuted, lastSpokeAt }]) => ({
                 peerId: pid,
                 displayName: dn,
                 stream,
                 isCamPaused,
+                isMuted,
                 lastSpokeAt,
             }))
         );
@@ -418,22 +420,20 @@ export function useRoom(
 
             // 11.5 remote producer paused/resumed
             on('producerPaused', ({ peerId: pausedPeerId, kind }) => {
-                if (kind === 'video') {
-                    const entry = peerStreamsRef.current.get(pausedPeerId as string);
-                    if (entry) {
-                        entry.isCamPaused = true;
-                        syncParticipants();
-                    }
+                const entry = peerStreamsRef.current.get(pausedPeerId as string);
+                if (entry) {
+                    if (kind === 'video') entry.isCamPaused = true;
+                    if (kind === 'audio') entry.isMuted = true;
+                    syncParticipants();
                 }
             });
 
             on('producerResumed', ({ peerId: resumedPeerId, kind }) => {
-                if (kind === 'video') {
-                    const entry = peerStreamsRef.current.get(resumedPeerId as string);
-                    if (entry) {
-                        entry.isCamPaused = false;
-                        syncParticipants();
-                    }
+                const entry = peerStreamsRef.current.get(resumedPeerId as string);
+                if (entry) {
+                    if (kind === 'video') entry.isCamPaused = false;
+                    if (kind === 'audio') entry.isMuted = false;
+                    syncParticipants();
                 }
             });
 
@@ -466,7 +466,7 @@ export function useRoom(
                 if (speakerIds.length > 0) {
                     setDominantSpeakerId(speakerIds[0]);
                 }
-                
+
                 if (needsSync) syncParticipants();
             });
         }
@@ -498,7 +498,7 @@ export function useRoom(
 
         peerStreamsRef.current.forEach((entry, peerId) => {
             const isWatched = watchedVideoPeers.includes(peerId);
-            
+
             entry.consumers.forEach((consumer) => {
                 if (consumer.kind === 'video') {
                     // Temporarily disabled to isolate black screen issue
