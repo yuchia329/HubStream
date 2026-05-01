@@ -38,7 +38,7 @@ async function main(): Promise<void> {
   });
 
   // Visitor log helper
-  const logVisitorEvent = (ip: string | string[] | undefined, country: string | undefined, cookieString: string | undefined, userAgent: string | undefined, mode: string, eventType: string) => {
+  const logVisitorEvent = (ip: string | string[] | undefined, country: string | string[], cookieString: string | undefined, userAgent: string | undefined, mode: string, eventType: string) => {
     let visitorId = 'unknown';
     if (cookieString) {
       const match = cookieString.match(/visitor_id=([^;]+)/);
